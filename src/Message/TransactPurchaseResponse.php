@@ -31,7 +31,10 @@ class TransactPurchaseResponse extends TransactAbstractResponse
 
     public function getMessage()
     {
-        return (string) $this->data->Payment->TxnList->Txn->responseText;
+        if ($this->getStatusCode() == '000') {
+            return (string) $this->data->Payment->TxnList->Txn->responseText;
+        }
+        return (string) $this->data->Status->statusDescription;
     }
 
     public function getCode()

@@ -43,7 +43,7 @@ abstract class TransactAbstractRequest extends \Omnipay\Common\Message\AbstractR
         $this->addMerchantInfoElement($this->xml);
         $this->addPaymentElement($this->xml);
         $this->setMessageTimestamp(self::generateMessageTimestamp());
-        $this->xml->MessageTimestamp = $this->getMessageTimestamp();
+        //$this->xml->MessageTimestamp = $this->getMessageTimestamp();
         return $this->xml;
     }
 
@@ -80,6 +80,7 @@ abstract class TransactAbstractRequest extends \Omnipay\Common\Message\AbstractR
         $element = $xml->addChild('CreditCardInfo');
         $card = $this->getCard();
         $element->cardNumber = $card->getNumber();
+        $element->cvv = $card->getCvv();
         $element->expiryDate = $card->getExpiryDate('m/y');
         $element->cardHolderName = $card->getName();
         $element->recurringfag = 'no';
@@ -158,10 +159,11 @@ abstract class TransactAbstractRequest extends \Omnipay\Common\Message\AbstractR
      */
     protected static function generateMessageTimestamp()
     {
-        list($micro, $sec) = explode(' ', microtime());
+        list($micro) = explode(' ', microtime());
         $ss = substr($micro, 2, 3);
-
-        return date("YdmHis{$ss}000+600");
+        $date = date_create();
+        date_timezone_set($date, timezone_open('Australia/Melbourne'));
+        return date_format($date, "YdmHis{$ss}000") . '+' . ($date->getOffset()/ 60);
     }
 
     public function getEndpoint()
